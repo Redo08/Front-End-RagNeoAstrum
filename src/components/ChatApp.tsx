@@ -155,9 +155,21 @@ export default function ChatApp() {
           setPendingFiles([]);
         }
 
-        const textQuery =
-          userMessage || "He subido documentos. Por favor analízalos y explícame su contenido.";
-        const response = await sendMessage(textQuery);
+        if (!userMessage) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: uid(),
+              type: "assistant",
+              content: `Documento${files.length > 1 ? "s" : ""} recibido${files.length > 1 ? "s" : ""}. Dame unos segundos y pregúntame lo que quieras sobre su contenido`,
+              timestamp: Date.now(),
+            },
+          ]);
+          setLoading(false);
+          setAvatarState("idle");
+          return;
+        }
+        const response = await sendMessage(userMessage);
 
         const assistantId = uid();
         setMessages((prev) => [
