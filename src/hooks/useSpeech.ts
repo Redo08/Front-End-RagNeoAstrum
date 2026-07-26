@@ -1,17 +1,18 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useSpeech() {
   const recognitionRef = useRef<any>(null);
-  const [isSTTSupported] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-  );
-  const [isTTSSupported] = useState(
-    () => typeof window !== "undefined" && "speechSynthesis" in window
-  );
+  const [isSTTSupported, setIsSTTSupported] = useState(false);
+  const [isTTSSupported, setIsTTSSupported] = useState(false);
+
+  useEffect(() => {
+    setIsSTTSupported(
+      "SpeechRecognition" in window || "webkitSpeechRecognition" in window
+    );
+    setIsTTSSupported("speechSynthesis" in window);    
+  }, []);
 
   const startListening = useCallback((): Promise<string> => {
     return new Promise((resolve, reject) => {

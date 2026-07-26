@@ -161,7 +161,7 @@ export default function ChatApp() {
             {
               id: uid(),
               type: "assistant",
-              content: `Documento${files.length > 1 ? "s" : ""} recibido${files.length > 1 ? "s" : ""}. Dame unos segundos y pregúntame lo que quieras sobre su contenido`,
+              content: `Documento${files.length > 1 ? "s" : ""} recibido${files.length > 1 ? "s" : ""}. Dame unos segundos y pregúntame lo que quieras sobre su contenido.`,
               timestamp: Date.now(),
             },
           ]);
@@ -255,11 +255,14 @@ export default function ChatApp() {
   const voiceSupported = speech.isTTSSupported && speech.isSTTSupported;
 
   return (
-    <div className="relative z-10 flex h-screen flex-col">
+    <div className="relative z-10 flex h-dvh flex-col">
       {/* Header */}
       <header
         className="flex items-center justify-between px-5 py-3.5 shrink-0"
-        style={{ borderBottom: "1px solid var(--border)" }}
+        style={{
+          borderBottom: "1px solid var(--border)",
+          paddingTop: "max(0.875rem, env(safe-area-inset-top))",
+        }}
       >
         <div className="flex items-center gap-3">
           <div
@@ -279,9 +282,9 @@ export default function ChatApp() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div
-            className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium"
+            className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium"
             style={{ border: "1px solid var(--border)", color: status.color }}
           >
             <span
@@ -290,11 +293,33 @@ export default function ChatApp() {
             />
             {status.text}
           </div>
+          {/* Compact status dot for narrow screens — same info, no label eating space */}
+          <span
+            className={`sm:hidden h-2.5 w-2.5 rounded-full ${serverStatus === "checking" ? "pulse-dot" : ""}`}
+            style={{ background: status.color }}
+            title={status.text}
+          />
+
+          {/* Voice toggle: the sidebar copy of this control is hidden below md,
+              so phones need their own way to reach it */}
+          <button
+            onClick={toggleVoiceMode}
+            className="md:hidden flex h-10 w-10 items-center justify-center rounded-full transition-colors cursor-pointer"
+            style={
+              voiceMode
+                ? { background: "var(--accent-soft)", border: "1px solid var(--border-strong)", color: "var(--accent-bright)" }
+                : { border: "1px solid var(--border)", color: "var(--text-secondary)" }
+            }
+            title="Modo voz"
+          >
+            {voiceMode ? <Volume2 size={15} /> : <VolumeX size={15} />}
+          </button>
+
           <button
             onClick={handleClearChat}
             disabled={loading}
             title="Limpiar conversación"
-            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-40"
             style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}
           >
             <Trash2 size={14} />
@@ -304,7 +329,7 @@ export default function ChatApp() {
 
       {/* Chat area */}
       <div className="flex flex-1 min-h-0">
-        {/* Sidebar avatar - hidden on small screens */}
+        {/* Sidebar avatar - hidden on small screens, voice toggle duplicated in header for mobile */}
         <aside
           className="hidden md:flex w-56 shrink-0 flex-col items-center justify-center gap-6 px-4"
           style={{ borderRight: "1px solid var(--border)" }}
@@ -331,12 +356,26 @@ export default function ChatApp() {
 
         {/* Messages + input */}
         <main className="flex flex-1 min-w-0 flex-col">
-          <div ref={scrollRef} className="custom-scrollbar flex-1 overflow-y-auto px-5 py-6">
+          <div ref={scrollRef} className="custom-scrollbar flex-1 overflow-y-auto px-3 sm:px-5 py-6">
             <div className="mx-auto flex max-w-2xl flex-col gap-4">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center gap-5 pt-10 text-center">
-                  <div className="md:hidden">
+                  <div className="md:hidden flex flex-col items-center gap-2">
                     <Avatar state={avatarState} />
+                    {voiceSupported && (
+                      <button
+                        onClick={toggleVoiceMode}
+                        className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-colors cursor-pointer"
+                        style={
+                          voiceMode
+                            ? { background: "var(--accent-soft)", border: "1px solid var(--border-strong)", color: "var(--accent-bright)" }
+                            : { border: "1px solid var(--border)", color: "var(--text-secondary)" }
+                        }
+                      >
+                        {voiceMode ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                        Modo voz {voiceMode ? "activo" : "inactivo"}
+                      </button>
+                    )}
                   </div>
                   <div>
                     <h2 className="font-display text-lg font-semibold">¿En qué puedo ayudarte?</h2>
@@ -388,7 +427,10 @@ export default function ChatApp() {
           </div>
 
           {/* Input bar */}
-          <div className="shrink-0 px-5 pb-5 pt-2">
+          <div
+            className="shrink-0 px-3 sm:px-5 pt-2"
+            style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
+          >
             <div className="mx-auto max-w-2xl">
               {pendingFiles.length > 0 && (
                 <div className="mb-2 flex flex-wrap gap-2">
@@ -409,7 +451,7 @@ export default function ChatApp() {
               )}
 
               <div
-                className="flex items-end gap-2 rounded-2xl px-2.5 py-2.5"
+                className="flex items-end gap-1.5 sm:gap-2 rounded-2xl px-2.5 py-2.5"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--border-strong)" }}
               >
                 <input
@@ -427,7 +469,7 @@ export default function ChatApp() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={serverStatus !== "ready"}
                   title="Adjuntar documento"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-40"
                   style={{ color: "var(--text-secondary)" }}
                 >
                   <Paperclip size={17} />
@@ -447,7 +489,9 @@ export default function ChatApp() {
                   }
                   disabled={serverStatus !== "ready"}
                   rows={1}
-                  className="max-h-32 flex-1 resize-none bg-transparent py-1.5 text-[14.5px] outline-none placeholder:text-[var(--text-muted)] disabled:opacity-50"
+                  // text-base (16px) on mobile stops iOS Safari's auto-zoom-on-focus;
+                  // sm: drops back to the tighter desktop size
+                  className="max-h-32 flex-1 resize-none bg-transparent py-2 sm:py-1.5 text-base sm:text-[14.5px] outline-none placeholder:text-[var(--text-muted)] disabled:opacity-50"
                   style={{ color: "var(--text-primary)" }}
                 />
 
@@ -455,7 +499,7 @@ export default function ChatApp() {
                   onClick={isListening ? speech.stopListening : startVoiceInput}
                   disabled={!voiceSupported || serverStatus !== "ready" || loading}
                   title={isListening ? "Detener grabación" : "Hablar"}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-30"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-30"
                   style={
                     isListening
                       ? { background: "rgba(248,113,113,0.15)", color: "#f87171" }
@@ -469,7 +513,7 @@ export default function ChatApp() {
                   onClick={() => handleSubmit()}
                   disabled={(!input.trim() && pendingFiles.length === 0) || loading || serverStatus !== "ready"}
                   title="Enviar"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity cursor-pointer disabled:opacity-30"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-opacity cursor-pointer disabled:opacity-30"
                   style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-bright))" }}
                 >
                   <Send size={15} style={{ color: "#04101f" }} />
