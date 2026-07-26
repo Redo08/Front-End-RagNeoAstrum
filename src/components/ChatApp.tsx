@@ -183,8 +183,12 @@ export default function ChatApp() {
           },
         ]);
 
+        setLoading(false);
+
         if (voiceMode) {
           await speakMessage(response.answer, assistantId);
+        } else {
+          setAvatarState("idle");
         }
       } catch (err) {
         const message = err instanceof APIError ? err.message : "Error desconocido. Intenta de nuevo.";
