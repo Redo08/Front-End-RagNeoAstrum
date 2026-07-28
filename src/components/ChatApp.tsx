@@ -14,13 +14,13 @@ import {
 import { APIError, AvatarState, ChatMessage, ServerStatus } from "@/lib/types";
 import { useSpeech } from "@/hooks/useSpeech";
 import Avatar from "./Avatar";
+import Image from "next/image";
 import ChatBubble from "./ChatBubble";
 import {
   Mic,
   MicOff,
   Paperclip,
   Send,
-  Sparkles,
   Trash2,
   Volume2,
   VolumeX,
@@ -269,15 +269,7 @@ export default function ChatApp() {
         }}
       >
         <div className="flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-full"
-            style={{
-              border: "1.5px solid var(--accent)",
-              background: "radial-gradient(circle at 35% 30%, rgba(79,178,255,0.3), transparent)",
-            }}
-          >
-            <Sparkles size={16} style={{ color: "var(--accent-bright)" }} />
-          </div>
+            <Image src="/logo.png" alt="Neo Astrum" width={40} height={45} className="shrink-0 -translate-y-[2px]" />
           <div>
             <h1 className="font-display text-[15px] font-semibold leading-none">Neo Astrum</h1>
             <p className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
